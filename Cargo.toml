@@ -17,4 +17,5 @@ path = "src/js_runtime/main.rs"
 
 [dependencies]
 poise = "0.6.1"
+scorched = "0.5.1"
 tokio = { version = "1.35.1", features = ["full"] }
