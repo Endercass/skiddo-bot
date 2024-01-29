@@ -9,14 +9,23 @@ use skiddo_bot::{
 async fn main() -> Result<(), Error> {
     let args = env::args().skip(1).collect::<Vec<_>>();
 
-    if let Some(arg) = args
+    if let Some(socket) = args
         .iter()
         .filter(|arg| arg.starts_with("--worker="))
         .map(|arg| arg.trim_start_matches("--worker="))
         .filter(|s| !s.is_empty())
         .last()
     {
-        return skiddo_instance::run(arg.to_string()).await;
+        if let Some(skiddo_file) = args
+            .iter()
+            .filter(|arg| arg.starts_with("--skiddo-file="))
+            .map(|arg| arg.trim_start_matches("--skiddo-file="))
+            .filter(|s| !s.is_empty())
+            .last()
+        {
+            return skiddo_instance::run(socket.to_string(), skiddo_file.to_string()).await;
+        }
+        return skiddo_manager::run().await;
     } else {
         return skiddo_manager::run().await;
     }
