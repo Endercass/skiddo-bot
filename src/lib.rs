@@ -12,7 +12,7 @@ pub enum Op {
     /// Evaluate a string
     Eval(String),
     /// Result of an evaluation
-    EvalResult(String),
+    EvalComplete(String),
     /// No operation (with optional message)
     ///
     /// Message MUST NOT be used to determine
@@ -23,6 +23,8 @@ pub enum Op {
     /// Message is strongly encouraged
     /// and can be used to determine behavior
     Error(Option<String>),
+    /// Shutdown the skiddo
+    Shutdown,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]

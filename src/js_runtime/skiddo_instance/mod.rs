@@ -1,3 +1,6 @@
+pub mod js;
+pub mod ops;
+
 use std::process;
 
 use scorched::{logf, LogData, LogImportance};
@@ -27,12 +30,20 @@ pub async fn run(socket: String, skiddo_file: String) -> Result<(), crate::Error
         )
         .unwrap();
 
+    let mut runtime = deno_core::JsRuntime::new(deno_core::RuntimeOptions {
+        extensions: vec![
+            crate::js_runtime::skiddo_instance::js::ext::skiddo_internal::init_ops_and_esm(),
+        ],
+        ..Default::default()
+    });
+
     logf!(Info, "Skiddo instance booted up.");
 
-    // let mut runtime = JsRuntime::new(RuntimeOptions {
-    //     extensions: vec![],
-    //     ..Default::default()
-    // });
-
+    crate::message_handler!(
+        worker_rx.lock().unwrap(),
+        crate::Op::Init => |msg: crate::Message | ops::init::init(msg, (&mut runtime, controller_tx.clone())),
+        crate::Op::Eval(code) => |msg: crate::Message| ops::eval::eval(msg, code, (&mut runtime, controller_tx.clone())),
+        crate::Op::Shutdown => |_msg: crate::Message| false
+    );
     Ok(())
 }
